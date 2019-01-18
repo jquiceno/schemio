@@ -2,9 +2,13 @@
   "name": "schemio",
   "version": "0.0.1",
   "description": "Nodejs library to validate data schema",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "npm run lint && NODE_ENV=test babel ./src/index.js",
+    "build": "babel src --out-dir dist",
+    "watch": "babel src --out-dir dist --watch",
+    "test": "npm run lint && NODE_ENV=test ava -v -s",
+    "lint": "standard"
   },
   "keywords": [
     "schema",
@@ -12,5 +16,31 @@
     "validate"
   ],
   "author": "jquiceno",
-  "license": "ISC"
+  "license": "ISC",
+  "ava": {
+    "require": [
+      "@babel/register"
+    ],
+    "files": [
+      "./test/*-test.js"
+    ],
+    "source": [
+      "**/*.{js,jsx}"
+    ]
+  },
+  "dependencies": {
+    "defaults": "^1.0.3"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.1",
+    "@babel/plugin-transform-async-to-generator": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.0.0",
+    "@babel/preset-env": "^7.0.0",
+    "@babel/register": "^7.0.0",
+    "@babel/runtime": "^7.0.0",
+    "ava": "^1.1.0",
+    "babel-eslint": "^10.0.1",
+    "standard": "^12.0.1"
+  },
 }
