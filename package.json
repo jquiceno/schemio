@@ -22,14 +22,16 @@
       "@babel/register"
     ],
     "files": [
-      "./test/*-test.js"
+      "./test/*.test.js"
     ],
-    "source": [
+    "sources": [
       "**/*.{js,jsx}"
     ]
   },
   "dependencies": {
-    "defaults": "^1.0.3"
+    "boom": "^7.3.0",
+    "defaults": "^1.0.3",
+    "joi": "^14.3.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",
@@ -42,5 +44,5 @@
     "ava": "^1.1.0",
     "babel-eslint": "^10.0.1",
     "standard": "^12.0.1"
-  },
+  }
 }
