@@ -1,5 +1,7 @@
 'use strict'
 
+import Schema from './lib/schema'
+
 module.exports = {
-  test: () => console.log('Hola!')
+  Schema
 }
