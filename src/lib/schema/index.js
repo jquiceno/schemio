@@ -72,8 +72,10 @@ class Schema {
           }
         }
 
-        newData[key] = data[key]
-        delete data[key]
+        if (data[key]) {
+          newData[key] = data[key]
+          delete data[key]
+        }
       })
 
       if (!clear) {
