@@ -35,7 +35,7 @@ class Schema {
           }
         }
 
-        if (item.default && !data[key]) {
+        if (item.default && typeof data[key] === 'undefined') {
           newData[key] = schema[key].default
           delete data[key]
 
@@ -72,7 +72,7 @@ class Schema {
           }
         }
 
-        if (data[key]) {
+        if (typeof data[key] !== 'undefined') {
           newData[key] = data[key]
           delete data[key]
         }

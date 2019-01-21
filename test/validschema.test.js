@@ -35,6 +35,9 @@ test.beforeEach(t => {
     },
     skills: {
       type: 'object'
+    },
+    genere: {
+      type: 'string'
     }
   }
 
@@ -53,7 +56,7 @@ test.beforeEach(t => {
   }
 })
 
-test('Validating obect data', t => {
+test('Validating object data', t => {
   const data = t.context.data
   const schema = t.context.schema
 
