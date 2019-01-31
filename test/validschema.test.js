@@ -37,7 +37,8 @@ test.beforeEach(t => {
       type: 'object'
     },
     genere: {
-      type: 'string'
+      type: 'string',
+      opts: ['male', 'female']
     }
   }
 
@@ -47,6 +48,7 @@ test.beforeEach(t => {
     email: 'test@gmail.com',
     age: 29,
     idioms: ['English', 'Spanish', 'Italian'],
+    genere: 'male',
     skills: {
       php: true,
       nodejs: true,
@@ -54,6 +56,28 @@ test.beforeEach(t => {
       python: true
     }
   }
+})
+
+test('Validate single options values', t => {
+  const data = t.context.data
+
+  const schema = t.context.schema
+
+  let validData = Schema.validate(data, schema)
+
+  t.deepEqual(validData.genere, data.genere)
+
+  data.genere = 'Test'
+
+  validData = Schema.validate(data, schema)
+
+  t.true(typeof validData.genere === 'undefined')
+
+  data.genere = 'female'
+
+  validData = Schema.validate(data, schema)
+
+  t.deepEqual(validData.genere, data.genere)
 })
 
 test('Validating object data', t => {
@@ -171,7 +195,7 @@ test('Validating require data', t => {
 
   t.deepEqual(validData.name, data.name)
   t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /The fiel email is required/)
+  t.regex(errData.output.payload.message, /The field email is required/)
 })
 
 test('Validating data no clear', t => {

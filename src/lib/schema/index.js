@@ -31,15 +31,16 @@ class Schema {
           valid = Joi.validate(data[key], Joi.required())
 
           if (valid.error) {
-            throw Boom.badRequest(`The fiel ${key} is required`)
+            throw Boom.badRequest(`The field ${key} is required`)
           }
         }
 
-        if (item.default && typeof data[key] === 'undefined') {
-          newData[key] = schema[key].default
-          delete data[key]
+        if (item.opts) {
+          if (item.opts.indexOf(data[key]) > -1) {
+            newData[key] = data[key]
+          }
 
-          return
+          return delete data[key]
         }
 
         if (typeof item.value !== 'undefined') {
@@ -54,18 +55,15 @@ class Schema {
           }
         }
 
+        if (item.default && typeof data[key] === 'undefined') {
+          newData[key] = schema[key].default
+          delete data[key]
+
+          return
+        }
+
         if (item.type && types.indexOf(item.type) >= 0) {
-          if (item.type === 'string') {
-            valid = Joi.validate(data[key], Joi.string())
-          } else if (item.type === 'number') {
-            valid = Joi.validate(data[key], Joi.number())
-          } else if (item.type === 'email') {
-            valid = Joi.validate(data[key], Joi.string().email())
-          } else if (item.type === 'array') {
-            valid = Joi.validate(data[key], Joi.array())
-          } else if (item.type === 'object') {
-            valid = Joi.validate(data[key], Joi.object())
-          }
+          valid = Schema.isType(item.type, data[key])
 
           if (valid.error) {
             throw Boom.badRequest(`Error, the ${key} field must be a ${item.type}`)
@@ -83,6 +81,28 @@ class Schema {
       }
 
       return newData
+    } catch (e) {
+      throw new Boom(e)
+    }
+  }
+
+  static isType (type, data) {
+    try {
+      let valid = null
+
+      if (type === 'string') {
+        valid = Joi.validate(data, Joi.string())
+      } else if (type === 'number') {
+        valid = Joi.validate(data, Joi.number())
+      } else if (type === 'email') {
+        valid = Joi.validate(data, Joi.string().email())
+      } else if (type === 'array') {
+        valid = Joi.validate(data, Joi.array())
+      } else if (type === 'object') {
+        valid = Joi.validate(data, Joi.object())
+      }
+
+      return valid
     } catch (e) {
       throw new Boom(e)
     }
