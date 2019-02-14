@@ -2,60 +2,22 @@
 
 import test from 'ava'
 import { Schema } from '../src'
-import moment from 'moment'
+import fixtures from './fixtures'
 
 test.beforeEach(t => {
-  t.context.schema = {
-    name: {
-      type: 'string',
-      require: true
-    },
-    email: {
-      type: 'email',
-      require: true
-    },
-    age: {
-      type: 'number'
-    },
-    city: {
-      default: 'Medellin'
-    },
-    state: {
-      value: (value, data) => {
-        return 'Antioquia'
-      }
-    },
-    created: {
-      value: (value, data) => {
-        return moment().unix()
-      }
-    },
-    idioms: {
-      type: 'array'
-    },
-    skills: {
-      type: 'object'
-    },
-    genere: {
-      type: 'string',
-      opts: ['male', 'female']
-    }
-  }
+  t.context.schema = fixtures.schema()
+  t.context.data = fixtures.data()
+})
 
-  t.context.data = {
-    name: 'John Quiceno',
-    country: 'Colombia',
-    email: 'test@gmail.com',
-    age: 29,
-    idioms: ['English', 'Spanish', 'Italian'],
-    genere: 'male',
-    skills: {
-      php: true,
-      nodejs: true,
-      go: true,
-      python: true
-    }
-  }
+test('Validate data options with default value', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  data.profession = 'TestProfession'
+
+  let validData = Schema.validate(data, schema)
+
+  t.true(validData.profession === schema.profession.default)
 })
 
 test('Validate single options values', t => {

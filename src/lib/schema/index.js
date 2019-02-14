@@ -40,6 +40,10 @@ class Schema {
             newData[key] = data[key]
           }
 
+          if (!newData[key] && item.default) {
+            newData[key] = item.default
+          }
+
           return delete data[key]
         }
 
