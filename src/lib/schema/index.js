@@ -4,7 +4,7 @@ import Boom from 'boom'
 import Joi from 'joi'
 import defaults from 'defaults'
 
-const types = ['string', 'number', 'email', 'array', 'object']
+const types = ['string', 'number', 'email', 'array', 'object', 'boolean']
 
 class Schema {
   constructor (schema) {
@@ -104,6 +104,8 @@ class Schema {
         valid = Joi.validate(data, Joi.array())
       } else if (type === 'object') {
         valid = Joi.validate(data, Joi.object())
+      } else if (type === 'boolean') {
+        valid = Joi.validate(data, Joi.boolean())
       }
 
       return valid

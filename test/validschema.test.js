@@ -9,6 +9,23 @@ test.beforeEach(t => {
   t.context.data = fixtures.data()
 })
 
+test('Validate data type boolean', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  let validData = Schema.validate(data, schema)
+
+  t.deepEqual(validData.accept, data.accept)
+
+  data.accept = 'invalidBoolean'
+
+  let error = t.throws(() => {
+    return Schema.validate(data, schema)
+  })
+
+  t.regex(error.message, /Error, the accept field must be a boolean/)
+})
+
 test('Validate data options with default value', t => {
   const data = t.context.data
   const schema = t.context.schema

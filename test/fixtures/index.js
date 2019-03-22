@@ -43,13 +43,23 @@ module.exports = {
         type: 'string',
         opts: ['backEnd', 'frontEnd'],
         default: 'backEnd'
+      },
+      accept: {
+        type: 'boolean'
       }
     }
   },
 
   data () {
     return {
+      properties: {
+        height: 175,
+        eyeColor: 'Green',
+        weight: '85 Kg',
+        skinColor: 'black'
+      },
       name: 'John Quiceno',
+      accept: true,
       country: 'Colombia',
       email: 'test@gmail.com',
       age: 29,
