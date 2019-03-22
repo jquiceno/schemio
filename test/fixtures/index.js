@@ -60,6 +60,10 @@ module.exports = {
             type: 'string'
           }
         }
+      },
+      role: {
+        type: 'string',
+        value: 'guest'
       }
     }
   },

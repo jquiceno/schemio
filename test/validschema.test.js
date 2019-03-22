@@ -9,6 +9,63 @@ test.beforeEach(t => {
   t.context.data = fixtures.data()
 })
 
+test('Validate undefined data', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  delete data.age
+
+  const validData = Schema.validate(data, schema)
+
+  t.is(typeof validData, 'object')
+  t.is(typeof validData.age, 'undefined')
+})
+
+test('Validate data invalid type', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  schema.name.type = 'invalidType'
+
+  const validData = Schema.validate(data, schema)
+
+  t.is(typeof validData, 'object')
+})
+
+test('Validate data strict value', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  data.role = 'administrator'
+
+  const validData = Schema.validate(data, schema)
+
+  t.deepEqual(validData.role, 'guest')
+})
+
+test('Error invalid data and schema', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  let error = t.throws(() => {
+    return Schema.validate('', schema)
+  })
+
+  t.regex(error.message, /Parameters data and schema must be objects/)
+
+  error = t.throws(() => {
+    return Schema.validate(data, null)
+  })
+
+  t.regex(error.message, /Parameters data and schema must be objects/)
+
+  error = t.throws(() => {
+    return Schema.validate()
+  })
+
+  t.regex(error.message, /Parameters data and schema must be objects/)
+})
+
 test('Validate child data schema', t => {
   const data = t.context.data
   const schema = t.context.schema

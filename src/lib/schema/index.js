@@ -7,12 +7,12 @@ import defaults from 'defaults'
 const types = ['string', 'number', 'email', 'array', 'object', 'boolean']
 
 class Schema {
-  constructor (schema) {
-    this.schema = schema
-  }
-
   static validate (_data = null, schema = null, options = false) {
     try {
+      if (this.isType('object', _data).error || this.isType('object', schema).error) {
+        throw Boom.badRequest('Parameters data and schema must be objects')
+      }
+
       options = defaults(options, {
         clear: true,
         parent: null
@@ -63,16 +63,13 @@ class Schema {
             newData[key] = item.value
           }
 
-          if (newData[key]) {
-            return delete data[key]
-          }
+          return delete data[key]
         }
 
         if (item.default && typeof data[key] === 'undefined') {
           newData[key] = schema[key].default
-          delete data[key]
 
-          return
+          return delete data[key]
         }
 
         if (item.type && types.indexOf(item.type) >= 0) {
@@ -85,7 +82,7 @@ class Schema {
 
         if (typeof data[key] !== 'undefined') {
           newData[key] = data[key]
-          delete data[key]
+          return delete data[key]
         }
       })
 
@@ -100,27 +97,30 @@ class Schema {
   }
 
   static isType (type, data) {
-    try {
-      let valid = null
+    let valid = null
 
-      if (type === 'string') {
+    switch (type) {
+      case 'string':
         valid = Joi.validate(data, Joi.string())
-      } else if (type === 'number') {
+        break
+      case 'number':
         valid = Joi.validate(data, Joi.number())
-      } else if (type === 'email') {
+        break
+      case 'email':
         valid = Joi.validate(data, Joi.string().email())
-      } else if (type === 'array') {
+        break
+      case 'array':
         valid = Joi.validate(data, Joi.array())
-      } else if (type === 'object') {
+        break
+      case 'object':
         valid = Joi.validate(data, Joi.object())
-      } else if (type === 'boolean') {
+        break
+      case 'boolean':
         valid = Joi.validate(data, Joi.boolean())
-      }
-
-      return valid
-    } catch (e) {
-      throw new Boom(e)
+        break
     }
+
+    return valid
   }
 }
 
