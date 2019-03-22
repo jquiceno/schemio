@@ -96,28 +96,38 @@ class Schema {
     }
   }
 
-  static isType (type, data) {
+  static isType (types, data) {
     let valid = null
+    let schema = []
 
-    switch (type) {
-      case 'string':
-        valid = Joi.validate(data, Joi.string())
-        break
-      case 'number':
-        valid = Joi.validate(data, Joi.number())
-        break
-      case 'email':
-        valid = Joi.validate(data, Joi.string().email())
-        break
-      case 'array':
-        valid = Joi.validate(data, Joi.array())
-        break
-      case 'object':
-        valid = Joi.validate(data, Joi.object())
-        break
-      case 'boolean':
-        valid = Joi.validate(data, Joi.boolean())
-        break
+    if (!Array.isArray(types)) {
+      types = [types]
+    }
+
+    const validTypes = {
+      string: Joi.string(),
+      number: Joi.number(),
+      email: Joi.string().email(),
+      array: Joi.array(),
+      object: Joi.object(),
+      boolean: Joi.boolean()
+    }
+
+    types.forEach(t => {
+      if (validTypes[t.toLowerCase()]) {
+        schema.push(validTypes[t])
+      }
+    })
+
+    if (schema.length < 1) {
+      valid = {
+        error: {
+          code: 'ERR_ASSERTION',
+          message: 'The type of data does not exist or is invalid'
+        }
+      }
+    } else {
+      valid = Joi.validate(data, schema)
     }
 
     return valid
