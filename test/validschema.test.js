@@ -9,6 +9,29 @@ test.beforeEach(t => {
   t.context.data = fixtures.data()
 })
 
+test('Validate child data schema', t => {
+  const data = t.context.data
+  const schema = t.context.schema
+
+  let validData = Schema.validate(data, schema)
+
+  t.deepEqual(validData.properties.weight, data.properties.weight)
+
+  validData = Schema.validate(data, schema, {
+    clear: false
+  })
+
+  t.deepEqual(validData.properties.skinColor, data.properties.skinColor)
+
+  data.properties.height = '175 kg'
+
+  const error = t.throws(() => {
+    return Schema.validate(data, schema)
+  })
+
+  t.regex(error.message, /Error, the properties.height field must be a number/)
+})
+
 test('Validate data type boolean', t => {
   const data = t.context.data
   const schema = t.context.schema

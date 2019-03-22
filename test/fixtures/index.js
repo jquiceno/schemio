@@ -46,6 +46,20 @@ module.exports = {
       },
       accept: {
         type: 'boolean'
+      },
+      properties: {
+        type: 'object',
+        schema: {
+          height: {
+            type: 'number'
+          },
+          eyeColor: {
+            type: 'string'
+          },
+          weight: {
+            type: 'string'
+          }
+        }
       }
     }
   },

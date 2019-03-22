@@ -14,12 +14,13 @@ class Schema {
   static validate (_data = null, schema = null, options = false) {
     try {
       options = defaults(options, {
-        clear: true
+        clear: true,
+        parent: null
       })
 
       const data = Object.assign({}, _data)
 
-      const { clear } = options
+      const { clear, parent } = options
 
       const newData = {}
 
@@ -33,6 +34,14 @@ class Schema {
           if (valid.error) {
             throw Boom.badRequest(`The field ${key} is required`)
           }
+        }
+
+        if (item.schema) {
+          const params = item.params || options
+          params.parent = key
+          newData[key] = this.validate(data[key], item.schema, params)
+
+          return delete data[key]
         }
 
         if (item.opts) {
@@ -70,7 +79,7 @@ class Schema {
           valid = Schema.isType(item.type, data[key])
 
           if (valid.error) {
-            throw Boom.badRequest(`Error, the ${key} field must be a ${item.type}`)
+            throw Boom.badRequest((!parent) ? `Error, the ${key} field must be a ${item.type}` : `Error, the ${parent}.${key} field must be a ${item.type}`)
           }
         }
 
