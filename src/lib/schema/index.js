@@ -1,7 +1,7 @@
 'use strict'
 
-import Boom from 'boom'
-import Joi from 'joi'
+import Boom from '@hapi/boom'
+import Joi from '@hapi/joi'
 import defaults from 'defaults'
 
 const types = ['string', 'number', 'email', 'array', 'object', 'boolean']
@@ -72,7 +72,7 @@ class Schema {
           return delete data[key]
         }
 
-        if (item.type && types.indexOf(item.type) >= 0) {
+        if (data[key] && item.type && types.indexOf(item.type) >= 0) {
           valid = Schema.isType(item.type, data[key])
 
           if (valid.error) {

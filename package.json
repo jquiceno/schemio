@@ -4,6 +4,7 @@
   "description": "Nodejs library to validate data schema",
   "main": "dist/index.js",
   "scripts": {
+    "prepare": "npm run build",
     "dev": "npm run lint && NODE_ENV=test babel ./src/index.js",
     "build": "npm run lint && babel src --out-dir dist",
     "watch": "babel src --out-dir dist --watch",
