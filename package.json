@@ -4,10 +4,6 @@
   "description": "Nodejs library to validate data schema",
   "main": "dist/index.js",
   "scripts": {
-    "prepare": "npm run build",
-    "dev": "npm run lint && NODE_ENV=test babel ./src/index.js",
-    "build": "npm run lint && babel src --out-dir dist",
-    "watch": "babel src --out-dir dist --watch",
     "test": "npm run lint && NODE_ENV=test ava -v -s",
     "lint": "standard",
     "dev:test": "npm run test -- -w",
@@ -21,9 +17,6 @@
   "author": "jquiceno",
   "license": "ISC",
   "ava": {
-    "require": [
-      "@babel/register"
-    ],
     "files": [
       "./test/*.test.js"
     ],
@@ -37,12 +30,7 @@
     "defaults": "^1.0.3"
   },
   "devDependencies": {
-    "@babel/cli": "^7.0.0",
-    "@babel/core": "^7.0.1",
-    "@babel/preset-env": "^7.3.1",
-    "@babel/register": "^7.0.0",
     "ava": "^1.2.1",
-    "babel-eslint": "^10.0.1",
     "moment": "^2.24.0",
     "nyc": "^14.1.1",
     "standard": "^12.0.1"

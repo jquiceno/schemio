@@ -1,8 +1,8 @@
 'use strict'
 
-import Boom from '@hapi/boom'
-import Joi from '@hapi/joi'
-import defaults from 'defaults'
+const Boom = require('@hapi/boom')
+const Joi = require('@hapi/joi')
+const defaults = require('defaults')
 
 const types = ['string', 'number', 'email', 'array', 'object', 'boolean']
 

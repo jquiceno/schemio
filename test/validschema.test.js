@@ -1,8 +1,8 @@
 'use strict'
 
-import test from 'ava'
-import { Schema } from '../src'
-import fixtures from './fixtures'
+const test = require('ava')
+const { Schema } = require('../src')
+const fixtures = require('./fixtures')
 
 test.beforeEach(t => {
   t.context.schema = fixtures.schema()

@@ -1,6 +1,6 @@
 'use strict'
 
-import Moment from 'moment'
+const Moment = require('moment')
 
 module.exports = {
   schema () {

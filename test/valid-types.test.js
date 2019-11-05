@@ -1,7 +1,7 @@
 'use strict'
 
-import test from 'ava'
-import { Schema } from '../src'
+const test = require('ava')
+const { Schema } = require('../src')
 
 test('Valid multiple types', t => {
   let validData = Schema.isType(['string', 'number'], '2')

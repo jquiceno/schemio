@@ -1,6 +1,6 @@
 'use strict'
 
-import Schema from './lib/schema'
+const Schema = require('./lib/schema')
 
 module.exports = {
   Schema
