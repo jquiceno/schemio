@@ -1,6 +1,6 @@
 {
   "name": "schemio",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "description": "Nodejs library to validate data schema",
   "main": "src/lib/schema/index.js",
   "scripts": {
