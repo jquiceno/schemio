@@ -2,12 +2,12 @@
   "name": "schemio",
   "version": "0.2.5",
   "description": "Nodejs library to validate data schema",
-  "main": "dist/index.js",
+  "main": "src/lib/schema/index.js",
   "scripts": {
-    "test": "npm run lint && NODE_ENV=test ava -v -s",
+    "test": "ava -v",
     "lint": "standard",
-    "dev:test": "npm run test -- -w",
-    "cover": "nyc npm run test"
+    "test:dev": "npm run test -- -w",
+    "coverage": "nyc npm run test"
   },
   "keywords": [
     "schema",
@@ -19,20 +19,17 @@
   "ava": {
     "files": [
       "./test/*.test.js"
-    ],
-    "sources": [
-      "**/*.{js,jsx}"
     ]
   },
   "dependencies": {
-    "@hapi/boom": "^7.4.2",
-    "@hapi/joi": "^15.0.3",
+    "@hapi/boom": "^9.1.2",
+    "@hapi/joi": "^17.1.1",
     "defaults": "^1.0.3"
   },
   "devDependencies": {
-    "ava": "^1.2.1",
-    "moment": "^2.24.0",
-    "nyc": "^14.1.1",
-    "standard": "^12.0.1"
+    "ava": "^3.15.0",
+    "moment": "^2.29.1",
+    "nyc": "^15.1.0",
+    "standard": "^16.0.3"
   }
 }

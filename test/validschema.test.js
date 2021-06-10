@@ -1,271 +1,282 @@
 'use strict'
 
 const test = require('ava')
-const { Schema } = require('../src')
+const { schema } = require('../')
 const fixtures = require('./fixtures')
 
 test.beforeEach(t => {
-  t.context.schema = fixtures.schema()
+  t.context.sch = fixtures.schema()
   t.context.data = fixtures.data()
+
+  t.context.schema = schema(t.context.sch)
 })
 
 test('Validate undefined data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
   delete data.age
 
-  const validData = Schema.validate(data, schema)
+  const validData = schema(sch).validate(data)
 
   t.is(typeof validData, 'object')
   t.is(typeof validData.age, 'undefined')
 })
 
-test('Validate data invalid type', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Error: Invalid type', t => {
+  const { data, sch } = t.context
 
-  schema.name.type = 'invalidType'
+  sch.name.type = 'invalidType'
 
-  const validData = Schema.validate(data, schema)
+  const error = t.throws(() => schema(sch).validate(data))
 
-  t.is(typeof validData, 'object')
+  t.regex(error.message, /Invalid type/)
 })
 
 test('Validate data strict value', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
   data.role = 'administrator'
 
-  const validData = Schema.validate(data, schema)
+  const { value } = schema(sch).validate(data)
 
-  t.deepEqual(validData.role, 'guest')
+  t.deepEqual(value.role, 'guest')
 })
 
 test('Error invalid data and schema', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
   let error = t.throws(() => {
-    return Schema.validate('', schema)
+    return schema(sch).validate('', schema)
   })
 
   t.regex(error.message, /Parameters data and schema must be objects/)
 
   error = t.throws(() => {
-    return Schema.validate(data, null)
+    return schema().validate(data)
   })
 
-  t.regex(error.message, /Parameters data and schema must be objects/)
+  t.regex(error.message, /Invalid schema/)
 
   error = t.throws(() => {
-    return Schema.validate()
+    return schema(sch).validate(undefined, {})
   })
 
   t.regex(error.message, /Parameters data and schema must be objects/)
-})
-
-test('Validate child data schema', t => {
-  const data = t.context.data
-  const schema = t.context.schema
-
-  let validData = Schema.validate(data, schema)
-
-  t.deepEqual(validData.properties.weight, data.properties.weight)
-
-  validData = Schema.validate(data, schema, {
-    clear: false
-  })
-
-  t.deepEqual(validData.properties.skinColor, data.properties.skinColor)
-
-  data.properties.height = '175 kg'
-
-  const error = t.throws(() => {
-    return Schema.validate(data, schema)
-  })
-
-  t.regex(error.message, /Error, the properties.height field must be a number/)
 })
 
 test('Validate data type boolean', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
-  let validData = Schema.validate(data, schema)
+  const { value } = schema(sch).validate(data)
 
-  t.deepEqual(validData.accept, data.accept)
+  t.deepEqual(value.accept, data.accept)
 
   data.accept = 'invalidBoolean'
 
-  let error = t.throws(() => {
-    return Schema.validate(data, schema)
-  })
+  const { error } = schema(sch).validate(data)
 
-  t.regex(error.message, /Error, the accept field must be a boolean/)
+  t.regex(error.message, /must be a boolean/)
 })
 
 test('Validate data options with default value', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
-  data.profession = 'TestProfession'
+  delete data.profession
 
-  let validData = Schema.validate(data, schema)
+  const { value } = schema(sch).validate(data)
 
-  t.true(validData.profession === schema.profession.default)
+  t.deepEqual(value.profession, sch.profession.default)
 })
 
-test('Validate single options values', t => {
-  const data = t.context.data
+test('Error, Invalid value from options', t => {
+  const { data, sch } = t.context
 
-  const schema = t.context.schema
+  const { error } = schema(sch).validate({
+    ...data,
+    genere: 'Invalid genere'
+  })
 
-  let validData = Schema.validate(data, schema)
+  t.regex(error.message, /must be one of/)
+})
 
-  t.deepEqual(validData.genere, data.genere)
+test('Correct options value', t => {
+  const { data, sch } = t.context
+  const genere = 'female'
+  const { error, value } = schema(sch).validate({
+    ...data,
+    genere: 'female'
+  })
 
-  data.genere = 'Test'
-
-  validData = Schema.validate(data, schema)
-
-  t.true(typeof validData.genere === 'undefined')
-
-  data.genere = 'female'
-
-  validData = Schema.validate(data, schema)
-
-  t.deepEqual(validData.genere, data.genere)
+  t.deepEqual(value.genere, genere)
+  t.falsy(error)
 })
 
 test('Validating object data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
-  const validData = Schema.validate(data, schema)
+  const { error, value } = schema(sch).validate(data)
 
-  const errData = t.throws(() => {
-    data.skills = 'php, node'
-    return Schema.validate(data, schema)
-  })
-
-  t.is(typeof validData.skills, 'object')
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /Error, the skills field must be a object/)
+  t.deepEqual(typeof value.skills, 'object', 'message')
+  t.falsy(error)
 })
 
-test('Validating array data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Error in object value', t => {
+  const { data, sch } = t.context
 
-  const validData = Schema.validate(data, schema)
-
-  const errData = t.throws(() => {
-    data.idioms = {
-      English: true
-    }
-    return Schema.validate(data, schema)
+  const { error } = schema(sch).validate({
+    ...data,
+    skills: 'php, node'
   })
 
-  t.is(Array.isArray(validData.idioms), true)
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /Error, the idioms field must be a array/)
+  t.truthy(error)
+  t.regex(error.message, /must be of type object/)
 })
 
-test('Validating default callback function', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Validating array value', t => {
+  const { data, sch } = t.context
 
-  const validData = Schema.validate(data, schema)
+  const { error, value } = schema(sch).validate(data, schema)
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(validData.state, 'Antioquia')
-  t.is(typeof validData.created, 'number')
+  t.falsy(error)
+  t.true(Array.isArray(value.languages))
+})
+
+test('Error in array value', t => {
+  const { data, sch } = t.context
+
+  const { error } = schema(sch).validate({
+    ...data,
+    languages: 'php, node'
+  })
+
+  t.truthy(error)
+  t.regex(error.message, /must be an array/)
 })
 
 test('Validating default single data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+  const { data, sch } = t.context
 
-  const validData = Schema.validate(data, schema)
+  const { value } = schema(sch).validate(data, schema)
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(validData.city, schema.city.default)
+  t.deepEqual(value.name, data.name)
+  t.deepEqual(value.city, sch.city.default)
 })
 
-test('Validating number data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Validating number value', t => {
+  const { data, schema } = t.context
 
-  const validData = Schema.validate(data, schema)
-
-  const errData = t.throws(() => {
-    data.age = 'test age string'
-    return Schema.validate(data, schema)
+  const { value } = schema.validate(data)
+  const { error } = schema.validate({
+    ...data,
+    age: 'Name'
   })
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /Error, the age field must be a number/)
+  t.deepEqual(value.age, data.age)
+  t.regex(error.message, /"age" must be a number/)
 })
 
-test('Validating string data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Validating string value', t => {
+  const { data, schema } = t.context
 
-  const validData = Schema.validate(data, schema)
-
-  const errData = t.throws(() => {
-    data.name = 465
-    return Schema.validate(data, schema)
+  const { value } = schema.validate(data)
+  const { error } = schema.validate({
+    ...data,
+    name: 325345
   })
 
-  t.deepEqual(validData.email, data.email)
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /Error, the name field must be a string/)
+  t.deepEqual(value.name, data.name)
+  t.deepEqual(typeof value.name, 'string')
+  t.regex(error.message, /"name" must be a string/)
 })
 
-test('Validating email data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Validating email type', t => {
+  const { data, schema } = t.context
 
-  const validData = Schema.validate(data, schema)
-
-  const errData = t.throws(() => {
-    data.email = 'testemail.fail'
-    return Schema.validate(data, schema)
+  const { value } = schema.validate(data)
+  const { error } = schema.validate({
+    ...data,
+    email: 'testemail.fail'
   })
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /Error, the email field must be a email/)
+  t.deepEqual(value.email, data.email)
+  t.deepEqual(typeof value.email, 'string')
+  t.regex(error.message, /valid email/)
 })
 
-test('Validating require data', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Validating require value', t => {
+  const { data, schema } = t.context
 
-  const validData = Schema.validate(data, schema)
-  const errData = t.throws(() => {
-    delete data.email
-    return Schema.validate(data, schema)
-  })
+  delete data.email
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(errData.output.statusCode, 400)
-  t.regex(errData.output.payload.message, /The field email is required/)
+  const { value, error } = schema.validate(data)
+
+  t.falsy(value.email)
+  t.truthy(error)
+  t.regex(error.message, /is required/)
 })
 
-test('Validating data no clear', t => {
-  const data = t.context.data
-  const schema = t.context.schema
+test('Error, extra invalid values', t => {
+  const { data, schema } = t.context
+
   data.test = 'Lorem ipsum dolor sit amet'
 
-  const validData = Schema.validate(data, schema, {
-    clear: false
+  const { value, error } = schema.validate(data)
+
+  t.deepEqual(value.test, data.test)
+  t.truthy(error)
+  t.regex(error.message, /is not allowed/)
+})
+
+test('Allow extra values', t => {
+  const { data, schema } = t.context
+
+  data.test = 'Lorem ipsum dolor sit amet'
+
+  const { value, error } = schema.validate(data, {
+    allowUnknown: true
   })
 
-  t.deepEqual(validData.name, data.name)
-  t.deepEqual(validData.country, data.country)
+  t.deepEqual(value.test, data.test)
+  t.falsy(error)
+})
+
+test('Validating default callback function', t => {
+  const { data, schema, sch } = t.context
+
+  const { error, value } = schema.validate(data)
+
+  t.falsy(error)
+  t.deepEqual(typeof sch.state.value, 'function')
+  t.deepEqual(typeof sch.created.value, 'function')
+  t.deepEqual(value.state, 'Antioquia')
+  t.deepEqual(typeof value.created, 'number')
+})
+
+test('Validate child object schema', t => {
+  const { data, schema } = t.context
+
+  const { error, value } = schema.validate(data, schema)
+
+  t.falsy(error)
+  t.deepEqual(typeof value.properties, 'object')
+  t.deepEqual(value.properties.weight, data.properties.weight)
+  t.deepEqual(value.properties.skinColor, data.properties.skinColor)
+})
+
+test('Error, Child object schema', t => {
+  const { data, schema } = t.context
+
+  const height = '175 kg'
+  const { error, value } = schema.validate({
+    ...data,
+    properties: {
+      ...data.properties,
+      height
+    }
+  })
+
+  t.truthy(error)
+  t.deepEqual(typeof value.properties, 'object')
+  t.deepEqual(value.properties.height, height)
+  t.regex(error.message, /must be a number/)
 })

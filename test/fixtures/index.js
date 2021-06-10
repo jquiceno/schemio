@@ -11,7 +11,7 @@ module.exports = {
       },
       email: {
         type: 'email',
-        require: true
+        required: true
       },
       age: {
         type: 'number'
@@ -29,7 +29,7 @@ module.exports = {
           return Moment().unix()
         }
       },
-      idioms: {
+      languages: {
         type: 'array'
       },
       skills: {
@@ -58,12 +58,18 @@ module.exports = {
           },
           weight: {
             type: 'string'
+          },
+          skinColor: {
+            type: 'string'
           }
         }
       },
       role: {
         type: 'string',
         value: 'guest'
+      },
+      country: {
+        type: 'string'
       }
     }
   },
@@ -81,7 +87,7 @@ module.exports = {
       country: 'Colombia',
       email: 'test@gmail.com',
       age: 29,
-      idioms: ['English', 'Spanish', 'Italian'],
+      languages: ['English', 'Spanish', 'Italian'],
       genere: 'male',
       skills: {
         php: true,
